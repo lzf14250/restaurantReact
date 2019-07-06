@@ -19,7 +19,7 @@ class Menu extends Component {
         });
     }
 
-    renderDIsh(dish) {
+    renderDish(dish) {
         if (dish != null) {
             return(
                 <Card>
@@ -58,7 +58,7 @@ class Menu extends Component {
                     {menu}
                 </div>
                 <div className="row">
-                    {this.renderDIsh(this.state.selectedDish)}
+                    {this.renderDish(this.state.selectedDish)}
                 </div>
             </div>
         );
