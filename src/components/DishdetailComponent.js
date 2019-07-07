@@ -73,9 +73,11 @@ class Dishdetail extends Component {
             );
         } else {
             return (
-                <div className="row">
-                    {this.renderDish(dish)}
-                    {this.renderComments(dish.comments)}
+                <div className="container">
+                    <div className="row">
+                        {this.renderDish(dish)}
+                        {this.renderComments(dish.comments)}
+                    </div>
                 </div>
             );
         }
