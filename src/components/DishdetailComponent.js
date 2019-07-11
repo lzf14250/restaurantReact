@@ -17,12 +17,18 @@ class CommentForm extends Component {
         };
 
         this.toggleModal = this.toggleModal.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     toggleModal() {
         this.setState({
             isModalOpen: !this.state.isModalOpen
         });
+    }
+
+    handleSubmit(values) {
+        this.toggleModal();
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render() {
@@ -37,7 +43,7 @@ class CommentForm extends Component {
                         Submit Comment
                     </ModalHeader>
                     <ModalBody>
-                        <LocalForm>
+                        <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
                             <Row className="form-group">
                                 <Label htmlFor="rating" className="col-12">
                                     Rating
@@ -54,11 +60,11 @@ class CommentForm extends Component {
                                 </Col>
                             </Row>
                             <Row className="form-group">
-                                <Label htmlFor="name" className="col-12">
+                                <Label htmlFor="author" className="col-12">
                                     Your Name
                                 </Label>
                                 <Col>
-                                    <Control.text model=".name" id="name" name="name"
+                                    <Control.text model=".author" id="author" name="author"
                                         className="form-control" 
                                         placeholder="Your Name" 
                                         validators={{
@@ -67,7 +73,7 @@ class CommentForm extends Component {
                                             maxLength: maxLength(15)
                                         }} />
                                     <Errors className="text-danger" 
-                                        model=".name"
+                                        model=".author"
                                         show="touched"
                                         messages={{
                                             required: 'Required ',
@@ -129,7 +135,7 @@ function addZero(num, length) {
     }
 }
 
-function RenderComments({comments}) {
+function RenderComments({comments, addComment, dishId}) {
     if (comments == null) {
         return (
             <div></div>
@@ -153,7 +159,7 @@ function RenderComments({comments}) {
                         })
                     }
                 </ul>
-                <CommentForm />
+                <CommentForm addComment={addComment} dishId={dishId} />
             </div>
         );
     }
@@ -181,7 +187,9 @@ function DishDetail(props) {
                 </div>
                 <div className="row">
                     <RenderDish dish={props.dish} />
-                    <RenderComments comments={props.comments} />
+                    <RenderComments comments={props.comments} 
+                        addComment={props.addComment}
+                        dishId={props.dish.id} />
                 </div>
             </div>
         );
