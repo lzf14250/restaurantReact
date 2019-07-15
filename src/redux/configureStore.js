@@ -15,7 +15,7 @@ export const ConfigureStore = () => {
             comments: Comments,
             promotions: Promotions,
             leaders: Leaders,
-            ...createForms({
+            ...createForms({ 
                 // create a form with model = "feedback", 
                 // and initial state = InitialFeedback
                 feedback: InitialFeedback
