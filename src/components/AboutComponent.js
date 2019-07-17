@@ -8,8 +8,8 @@ function About(props) {
 
     function RenderLeader({leader}) {
         return (
-            <Fade in>
-                <Media tag="li" key={leader.id} className="col-12 mt-5">
+            <Fade in key={leader.id}>
+                <Media tag="li"  className="col-12 mt-5">
                     <Media left middle>
                         <Media object src={baseUrl + leader.image} alt={leader.name} />
                     </Media>

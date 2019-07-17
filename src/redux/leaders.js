@@ -1,5 +1,4 @@
 import * as ActionTypes from './ActionTypes';
-import { actions } from 'react-redux-form';
 
 export const Leaders = (state = {
     isLoading: true,
