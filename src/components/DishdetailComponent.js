@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem,
+import { Card, CardImg, CardImgOverlay, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem,
     Button, Modal, ModalBody, ModalHeader, Row, Label, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors } from 'react-redux-form';
@@ -31,7 +31,7 @@ class CommentForm extends Component {
 
     handleSubmit(values) {
         this.toggleModal();
-        this.props.postComment(this.props.dishId, values.rating, values.author, values.comment);
+        this.props.postComment(this.props.dishId, values.rating, values.comment);
     }
 
     render() {
@@ -46,63 +46,62 @@ class CommentForm extends Component {
                         Submit Comment
                     </ModalHeader>
                     <ModalBody>
-                        <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
-                            <Row className="form-group">
-                                <Label htmlFor="rating" className="col-12">
-                                    Rating
-                                </Label>
-                                <Col>
-                                    <Control.select model=".rating" id="rating" name="rating"
-                                        className="form-control custom-select" defaultValue="5">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Control.select>
-                                </Col>
-                            </Row>
-                            <Row className="form-group">
-                                <Label htmlFor="author" className="col-12">
-                                    Your Name
-                                </Label>
-                                <Col>
-                                    <Control.text model=".author" id="author" name="author"
-                                        className="form-control" 
-                                        placeholder="Your Name" 
-                                        validators={{
-                                            required,
-                                            minLength: minLength(3),
-                                            maxLength: maxLength(15)
-                                        }} />
-                                    <Errors className="text-danger" 
-                                        model=".author"
-                                        show="touched"
-                                        messages={{
-                                            required: 'Required ',
-                                            minLength: 'Must be 3 characters or more ',
-                                            maxLength: 'Must be 15 characters or less'
-                                        }} />
-                                </Col>
-                            </Row>
-                            <Row className="form-group">
-                                <Label htmlFor="comment" className="col-12">
-                                    Comment
-                                </Label>
-                                <Col>
-                                    <Control.textarea model=".comment" id="comment" name="comment"
-                                        rows="6"
-                                        className="form-control" />
-                                </Col>
-                            </Row>
-                            <Row className="form-group">
-                                <Col>
-                                    <Button type="submit" color="primary">
-                                    Submit
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </LocalForm>
+                        {this.props.auth.isAuthenticated ?
+                            <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
+                                <Row className="form-group">
+                                    <Label htmlFor="rating" className="col-12">
+                                        Rating
+                                    </Label>
+                                    <Col>
+                                        <Control.select model=".rating" id="rating" name="rating"
+                                            className="form-control custom-select" defaultValue="5">
+                                            <option>1</option>
+                                            <option>2</option>
+                                            <option>3</option>
+                                            <option>4</option>
+                                            <option>5</option>
+                                        </Control.select>
+                                    </Col>
+                                </Row>
+                                <Row className="form-group">
+                                    <Label htmlFor="comment" className="col-12">
+                                        Comment
+                                    </Label>
+                                    <Col>
+                                        <Control.textarea model=".comment" id="comment" name="comment"
+                                            rows="6"
+                                            className="form-control"
+                                            placeholder="Your Comment"
+                                            validators={{
+                                                required,
+                                                minLength: minLength(10),
+                                                maxLength: maxLength(2000)
+                                            }} />
+                                        <Errors className="text-danger" 
+                                            model=".comment"
+                                            show="touched"
+                                            messages={{
+                                                required: 'Required ',
+                                                minLength: 'Must be 10 characters or more ',
+                                                maxLength: 'Must be 2000 characters or less'
+                                            }} />
+                                    </Col>
+                                </Row>
+                                <Row className="form-group">
+                                    <Col>
+                                        <Button type="submit" color="primary">
+                                        Submit
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </LocalForm>
+                            :
+                            <div className='container'>
+                                <div className='row'>
+                                    <h4>Please log in first</h4>
+                                </div>
+                            </div>
+                            }
                     </ModalBody>
                 </Modal>
             </>
@@ -110,7 +109,7 @@ class CommentForm extends Component {
     }
 }
 
-function RenderDish({dish}) {
+function RenderDish({ dish, favorite, deleteFavorite, postFavorite }) {
     if(dish == null) {
         return (
             <div></div>
@@ -123,6 +122,17 @@ function RenderDish({dish}) {
                 }}>
                     <Card>
                         <CardImg width="100%" src={baseUrl + dish.image} alt={dish.name} />
+                        <CardImgOverlay>
+                            {favorite ? 
+                                <Button outline color="primary" onClick={() => deleteFavorite(dish._id)}>
+                                    <span className='fa fa-heart'></span>
+                                </Button>
+                                :
+                                <Button outline color="primary" onClick={() => postFavorite(dish._id)}>
+                                    <span className='fa fa-heart-o'></span>
+                                </Button>
+                            }
+                        </CardImgOverlay>
                         <CardBody>
                             <CardTitle>{dish.name}</CardTitle>
                             <CardText>{dish.description}</CardText>
@@ -142,7 +152,20 @@ function addZero(num, length) {
     }
 }
 
-function RenderComments({comments, postComment, dishId}) {
+function RenderComments({comments, postComment, deleteComment, dishId, auth}) {
+    const addDeleteButton = (comment) => {
+        if (!localStorage.getItem('creds')) 
+            return <div></div>;
+        else if (comment.author.username === JSON.parse(localStorage.getItem('creds')).username)
+            return (
+                <Button color="primary" onClick={() => deleteComment(comment._id)}>
+                    Delete
+                </Button>
+            );
+        else 
+            return <div></div>;
+    }
+
     if (comments == null) {
         return (
             <div></div>
@@ -157,12 +180,13 @@ function RenderComments({comments, postComment, dishId}) {
                     <Stagger in>
                         {
                             comments.map((comment) => {
-                                var d = new Date(comment.date);
+                                var d = new Date(comment.createdAt);
                                 return (
                                     <Fade in>
-                                        <li key={comment.id} className="row m-1">
+                                        <li key={comment._id} className="row m-1">
                                             <div className="col-12">{comment.comment}</div>
-                                            <div className="col-12">-- {comment.author}, {month[d.getMonth()]} {addZero(d.getDay()+1,2)}, {d.getFullYear()}</div>
+                                            <div className="col-12">-- {comment.author.username}, {month[d.getMonth()]} {addZero(d.getDay()+1,2)}, {d.getFullYear()}</div>
+                                            {addDeleteButton(comment)}
                                         </li>
                                     </Fade>
                                 );
@@ -170,7 +194,10 @@ function RenderComments({comments, postComment, dishId}) {
                         }
                     </Stagger>
                 </ul>
-                <CommentForm postComment={postComment} dishId={dishId} />
+                <CommentForm 
+                    postComment={postComment}
+                    dishId={dishId}
+                    auth={auth} />
             </div>
         );
     }
@@ -188,7 +215,7 @@ function DishDetail(props) {
     } else if (props.errMess) {
         return(
             <div className="container">
-                <div className="row">
+                <div className="row"> 
                     <h4>{props.errMess}</h4>
                 </div>
             </div>
@@ -213,10 +240,14 @@ function DishDetail(props) {
                     </div>
                 </div>
                 <div className="row">
-                    <RenderDish dish={props.dish} />
+                    <RenderDish dish={props.dish} favorite={props.favorite}
+                        deleteFavorite={props.deleteFavorite}
+                        postFavorite={props.postFavorite} />
                     <RenderComments comments={props.comments} 
                         postComment={props.postComment}
-                        dishId={props.dish.id} />
+                        deleteComment={props.deleteComment}
+                        dishId={props.dish._id}
+                        auth={props.auth} />
                 </div>
             </div>
         );

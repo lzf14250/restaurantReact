@@ -15,6 +15,11 @@ export const Comments = (state = {
             var comment = action.payload;
             return {...state, comments: state.comments.concat(comment)};
 
+        case ActionTypes.REMOVE_COMMENT:
+            var index = state.comments.indexOf(state.comments.filter(comment => comment._id === action.payload._id)[0]);
+            state.comments.splice(index, 1);
+            return {...state, comments: state.comments};
+
         default:
             return state;
     }
