@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse, NavItem, Jumbotron, 
     Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Input, Label } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
+import { baseUrl } from '../shared/baseUrl';
 
 const validName = (val) => /^[A-Za-z]*/i.test(val);
 
@@ -88,7 +89,7 @@ class Header extends Component {
                     <div className="container">
                         <NavbarToggler onClick={this.toggleNav} />
                         <NavbarBrand className="mr-auto" href="/">
-                            <img src="assets/images/logo.png" height="30" width="41"
+                            <img src={baseUrl + "images/logo.png"} height="50" width="50"
                                 alt="Ristorante Con Fusion"/>
                         </NavbarBrand>
                         <Collapse isOpen={this.state.isNavOpen} navbar>

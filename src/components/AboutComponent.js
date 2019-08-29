@@ -11,7 +11,8 @@ function About(props) {
             <Fade in key={leader._id}>
                 <Media tag="li"  className="col-12 mt-5">
                     <Media left middle>
-                        <Media object src={baseUrl + leader.image} alt={leader.name} />
+                        <Media object src={baseUrl + leader.image} alt={leader.name}
+                            height="200" width="200" />
                     </Media>
                     <Media body className="ml-5">
                         <Media heading>{leader.name}</Media>
